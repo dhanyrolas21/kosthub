@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Room;
-use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,45 +11,52 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Akun Pemilik Kost
-        $owner = User::create([
-            'name' => 'Pemilik Kost',
-            'email' => 'owner@kosthub.com',
-            'password' => Hash::make('password'),
-            'role' => 'owner',
-            'phone' => '081234567890',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'owner@kosthub.com'],
+            [
+                'name' => 'Pemilik Kost',
+                'password' => Hash::make('password'),
+                'role' => 'owner',
+            ]
+        );
 
-        // 2. Akun Penghuni
-        $tenantUser = User::create([
-            'name' => 'Penghuni Kost',
-            'email' => 'tenant@kosthub.com',
-            'password' => Hash::make('password'),
-            'role' => 'tenant',
-            'phone' => '089876543210',
-        ]);
+        $roomsData = [];
 
-        // 3. Tambah Kamar
-        $room1 = Room::create([
-            'room_number' => '101',
-            'price' => 800000,
-            'status' => 'occupied',
-            'description' => 'Kamar Mandi Dalam, AC, Kasur Springbed',
-        ]);
+        // Type Biasa (1-5) - Rp 800.000
+        for ($i = 1; $i <= 5; $i++) {
+            $roomsData[] = [
+                'room_number' => (string) $i,
+                'price' => 800000,
+                'status' => 'available',
+                'description' => 'Tipe Biasa: Kipas Angin, Kamar Mandi Dalam, Kasur, Lemari, Jendela',
+            ];
+        }
 
-        Room::create([
-            'room_number' => '102',
-            'price' => 750000,
-            'status' => 'available',
-            'description' => 'Kamar Mandi Luar, Kipas Angin',
-        ]);
+        // Type Eksklusif (6-10) - Rp 1.500.000
+        for ($i = 6; $i <= 10; $i++) {
+            $roomsData[] = [
+                'room_number' => (string) $i,
+                'price' => 1500000,
+                'status' => 'available',
+                'description' => 'Tipe Eksklusif: AC, Wi-Fi, Kamar Mandi Dalam, Meja Belajar, Lemari, Kasur, Water Heater, Jendela',
+            ];
+        }
 
-        // 4. Hubungkan Penghuni ke Kamar 101
-        Tenant::create([
-            'user_id' => $tenantUser->id,
-            'room_id' => $room1->id,
-            'start_date' => '2026-10-01',
-            'is_active' => true,
-        ]);
+        // Type VIP (11-15) - Rp 2.500.000
+        for ($i = 11; $i <= 15; $i++) {
+            $roomsData[] = [
+                'room_number' => (string) $i,
+                'price' => 2500000,
+                'status' => 'available',
+                'description' => 'Tipe VIP: AC, Kamar Mandi Dalam, Meja Belajar, Lemari, Kasur King Size, Wi-Fi, Water Heater, Balkon, Smart TV, Kulkas Mini, Jendela',
+            ];
+        }
+
+        foreach ($roomsData as $data) {
+            Room::updateOrCreate(
+                ['room_number' => $data['room_number']],
+                $data
+            );
+        }
     }
 }

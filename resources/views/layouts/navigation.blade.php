@@ -10,20 +10,28 @@
                     </a>
                 </div>
 
-              <!-- Navigation Links -->
-<div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-    @if(auth()->user()->isOwner())
-    <x-nav-link :href="route('owner.dashboard')" :active="request()->routeIs('owner.dashboard')">
-        {{ __('Dashboard') }}
-    </x-nav-link>
-    <x-nav-link :href="route('owner.rooms.index')" :active="request()->routeIs('owner.rooms.*')">
-        {{ __('Manajemen Kamar') }}
-    </x-nav-link>
-    <x-nav-link :href="route('owner.payments.index')" :active="request()->routeIs('owner.payments.*')">
-        {{ __('Verifikasi Pembayaran') }}
-    </x-nav-link>
-@endif
-</div>
+                <!-- Navigation Links -->
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    @if(auth()->user()->isOwner())
+                        <x-nav-link :href="route('owner.dashboard')" :active="request()->routeIs('owner.dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('owner.rooms.index')" :active="request()->routeIs('owner.rooms.*')">
+                            {{ __('Manajemen Kamar') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('owner.tenants.index')" :active="request()->routeIs('owner.tenants.*')">
+                            {{ __('Manajemen Penghuni') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('owner.payments.index')" :active="request()->routeIs('owner.payments.*')">
+                            {{ __('Verifikasi Pembayaran') }}
+                        </x-nav-link>
+                    @else
+                        <x-nav-link :href="route('tenant.dashboard')" :active="request()->routeIs('tenant.dashboard')">
+                            {{ __('Dashboard Tagihan') }}
+                        </x-nav-link>
+                    @endif
+                </div>
+            </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -74,9 +82,24 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @if(auth()->user()->isOwner())
+                <x-responsive-nav-link :href="route('owner.dashboard')" :active="request()->routeIs('owner.dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('owner.rooms.index')" :active="request()->routeIs('owner.rooms.*')">
+                    {{ __('Manajemen Kamar') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('owner.tenants.index')" :active="request()->routeIs('owner.tenants.*')">
+                    {{ __('Manajemen Penghuni') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('owner.payments.index')" :active="request()->routeIs('owner.payments.*')">
+                    {{ __('Verifikasi Pembayaran') }}
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link :href="route('tenant.dashboard')" :active="request()->routeIs('tenant.dashboard')">
+                    {{ __('Dashboard Tagihan') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

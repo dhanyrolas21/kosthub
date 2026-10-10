@@ -4,37 +4,38 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Room;
-use App\Models\Invoice;
-use App\Models\Tenant;
+use App\Models\Payment;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $totalRooms = Room::count();
-        $occupiedRooms = Room::where('status', 'occupied')->count();
-        $availableRooms = Room::where('status', 'available')->count();
-        
-        $currentMonthEarnings = Invoice::where('period_month', now()->month)
-            ->where('period_year', now()->year)
-            ->where('status', 'paid')
-            ->sum('amount');
+        $rooms = Room::orderBy('room_number', 'asc')->get();
+        $totalRooms = $rooms->count();
+        $occupiedRooms = $rooms->where('status', 'occupied')->count();
+        $availableRooms = $rooms->where('status', 'available')->count();
 
-        $unpaidInvoices = Invoice::with(['tenant.user', 'room'])
-            ->whereIn('status', ['unpaid', 'pending'])
+        // Ambil pembayaran yang terhubung dengan invoice berkategori LUNAS (paid) bulan ini
+        $monthlyPayments = Payment::whereHas('invoice', function ($query) {
+                $query->where('status', 'paid');
+            })
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->with(['invoice.tenant.user', 'invoice.room'])
             ->latest()
-            ->take(5)
             ->get();
 
-        $rooms = Room::all();
+        // Hitung total pendapatan bulan ini
+        $monthlyRevenue = $monthlyPayments->sum(fn($p) => $p->invoice?->amount ?? 0);
 
-        return view('owner.dashboard', compact(
-            'totalRooms',
-            'occupiedRooms',
-            'availableRooms',
-            'currentMonthEarnings',
-            'unpaidInvoices',
-            'rooms'
-        ));
+        return view('owner.dashboard', [
+            'rooms' => $rooms,
+            'totalRooms' => $totalRooms,
+            'occupiedRooms' => $occupiedRooms,
+            'availableRooms' => $availableRooms,
+            'monthlyRevenue' => $monthlyRevenue,
+            'paymentHistory' => $monthlyPayments,
+        ]);
     }
 }
