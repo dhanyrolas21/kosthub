@@ -12,9 +12,11 @@ class Tenant extends Model
     protected $fillable = [
         'user_id',
         'room_id',
+        'phone',
         'start_date',
-        'end_date',
-        'is_active',
+        'due_date',
+        'checkout_status',
+        'checkout_date',
     ];
 
     public function user()
@@ -27,8 +29,8 @@ class Tenant extends Model
         return $this->belongsTo(Room::class);
     }
 
-    public function invoices()
+    public function complaints()
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Complaint::class);
     }
 }

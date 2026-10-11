@@ -6,13 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PaymentVerificationController extends Controller
 {
     public function index()
     {
-        // Ambil semua data pembayaran beserta relasinya
-        $pendingPayments = Payment::with(['invoice.tenant.user', 'invoice.room'])
+        // Hanya ambil data pembayaran yang berstatus PENDING
+        $pendingPayments = Payment::query()
+            ->when(Schema::hasColumn('payments', 'status'), function ($query) {
+                $query->where('status', 'pending');
+            }, function ($query) {
+                // Fallback jika kolom status di payments tidak ada, filter dari invoice unpaid
+                $query->whereHas('invoice', function ($q) {
+                    $q->where('status', 'unpaid');
+                });
+            })
+            ->with(['invoice.tenant.user', 'invoice.room'])
             ->latest()
             ->get();
 
@@ -30,9 +40,12 @@ class PaymentVerificationController extends Controller
 
         DB::transaction(function () use ($request, $payment) {
             if ($request->action === 'approve') {
-                // Update catatan pembayaran jika ada
-                if (\Schema::hasColumn('payments', 'status')) {
-                    $payment->update(['status' => 'approved', 'notes' => $request->notes]);
+                // Update status payment menjadi approved
+                if (Schema::hasColumn('payments', 'status')) {
+                    $payment->update([
+                        'status' => 'approved', 
+                        'notes' => $request->notes
+                    ]);
                 } else {
                     $payment->update(['notes' => $request->notes]);
                 }
@@ -45,8 +58,11 @@ class PaymentVerificationController extends Controller
                 }
             } else {
                 // Jika ditolak
-                if (\Schema::hasColumn('payments', 'status')) {
-                    $payment->update(['status' => 'rejected', 'notes' => $request->notes]);
+                if (Schema::hasColumn('payments', 'status')) {
+                    $payment->update([
+                        'status' => 'rejected', 
+                        'notes' => $request->notes
+                    ]);
                 } else {
                     $payment->update(['notes' => $request->notes]);
                 }
@@ -59,6 +75,11 @@ class PaymentVerificationController extends Controller
             }
         });
 
-        return redirect()->route('owner.payments.index')->with('success', $request->action === 'approve' ? 'Pembayaran berhasil disetujui! Status tagihan menjadi LUNAS dan pendapatan masuk ke dashboard.' : 'Pembayaran telah ditolak.');
+        return redirect()->route('owner.payments.index')->with(
+            'success', 
+            $request->action === 'approve' 
+                ? 'Pembayaran berhasil disetujui! Status tagihan menjadi LUNAS dan pendapatan masuk ke dashboard.' 
+                : 'Pembayaran telah ditolak.'
+        );
     }
 }
