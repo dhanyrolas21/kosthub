@@ -19,11 +19,11 @@
                 @csrf
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Judul / Masalah Kerusakan</label>
-                    <input type="text" name="title" placeholder="Contoh: AC Kamar 6 Tidak Dingin / Kran Air Bocor" required class="w-full text-sm border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="text" name="title" placeholder="Contoh: AC Kamar 6 Tidak Dingin / Kran Air Bocor" required style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-sm border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Deskripsi Detail</label>
-                    <textarea name="description" rows="3" placeholder="Jelaskan detail kendala kerusakan yang dialami..." required class="w-full text-sm border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    <textarea name="description" rows="3" placeholder="Jelaskan detail kendala kerusakan yang dialami..." required style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-sm border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Foto Bukti Kerusakan (Opsional)</label>
@@ -93,4 +93,4 @@
             </table>
         </div>
     </div>
-</x-app-layout>
+</x-app-layout> 

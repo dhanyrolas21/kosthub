@@ -20,7 +20,7 @@ return new class extends Migration
     $table->foreignId('verified_by')->nullable()->constrained('users')->onDelete('set null');
     $table->text('notes')->nullable();
     $table->timestamps();
-});
+}); 
     }
 
     /**

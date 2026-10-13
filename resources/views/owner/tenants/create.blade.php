@@ -1,74 +1,92 @@
-<?php
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-lg text-gray-800">
+                Tambah Penghuni Baru
+            </h2>
+            <a href="{{ route('owner.tenants.index') }}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-xl transition">
+                ← Kembali
+            </a>
+        </div>
+    </x-slot>
 
-namespace App\Http\Controllers\Owner;
+    <div class="max-w-3xl mx-auto space-y-6">
+        <div class="p-6 sm:p-8 rounded-3xl shadow-sm" style="background-color: #ffffff; border: 1px solid #e9d5ff;">
+            <div class="pb-4 mb-6" style="border-bottom: 2px solid #f3e8ff;">
+                <h3 class="text-base font-black text-gray-900">Form Pendaftaran Penghuni</h3>
+                <p class="text-xs text-gray-500 mt-1">Masukkan data lengkap penghuni baru. Akun login dan tagihan bulan pertama akan otomatis diterbitkan oleh sistem.</p>
+            </div>
 
-use App\Http\Controllers\Controller;
-use App\Models\Tenant;
-use App\Models\User;
-use App\Models\Room;
-use App\Models\Invoice;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
+            <form action="{{ route('owner.tenants.store') }}" method="POST" class="space-y-5">
+                @csrf
 
-class TenantController extends Controller
-{
-    public function index()
-    {
-        $tenants = Tenant::with(['user', 'room'])->latest()->get();
-        return view('owner.tenants.index', compact('tenants'));
-    }
+                <!-- Nama Lengkap -->
+                <div>
+                    <label for="name" class="block text-xs font-black uppercase tracking-wider mb-2" style="color: #581c87;">Nama Lengkap Penghuni</label>
+                    <input type="text" name="name" id="name" value="{{ old('name') }}" required placeholder="Contoh: Budi Santoso" style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-sm border-gray-300 rounded-xl p-3 focus:ring-purple-500 focus:border-purple-500">
+                    @error('name')
+                        <p class="text-xs text-red-600 mt-1 font-bold">{{ $message }}</p>
+                    @enderror
+                </div>
 
-    public function create()
-    {
-        // Ambil kamar yang belum terisi
-        $availableRooms = Room::where('is_occupied', false)->get();
-        return view('owner.tenants.create', compact('availableRooms'));
-    }
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-xs font-black uppercase tracking-wider mb-2" style="color: #581c87;">Alamat Email (Untuk Login)</label>
+                    <input type="email" name="email" id="email" value="{{ old('email') }}" required placeholder="budi@gmail.com" style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-sm border-gray-300 rounded-xl p-3 focus:ring-purple-500 focus:border-purple-500">
+                    @error('email')
+                        <p class="text-xs text-red-600 mt-1 font-bold">{{ $message }}</p>
+                    @enderror
+                </div>
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20',
-            'room_id' => 'required|exists:rooms,id',
-            'start_date' => 'required|date',
-        ]);
+                <!-- Nomor Telepon / HP -->
+                <div>
+                    <label for="phone" class="block text-xs font-black uppercase tracking-wider mb-2" style="color: #581c87;">Nomor Telepon / WhatsApp</label>
+                    <input type="text" name="phone" id="phone" value="{{ old('phone') }}" required placeholder="081234567890" style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-sm border-gray-300 rounded-xl p-3 focus:ring-purple-500 focus:border-purple-500">
+                    @error('phone')
+                        <p class="text-xs text-red-600 mt-1 font-bold">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        // 1. Buat User Penghuni Baru
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make('password'), // password default
-            'role' => 'tenant',
-        ]);
+                <!-- Tanggal Mulai Sewa -->
+                <div>
+                    <label for="start_date" class="block text-xs font-black uppercase tracking-wider mb-2" style="color: #581c87;">Tanggal Mulai Sewa</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ old('start_date', date('Y-m-d')) }}" required style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-sm border-gray-300 rounded-xl p-3 focus:ring-purple-500 focus:border-purple-500">
+                    @error('start_date')
+                        <p class="text-xs text-red-600 mt-1 font-bold">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        // 2. Buat Data Tenant
-        $startDate = Carbon::parse($request->start_date);
-        $dueDate = $startDate->copy()->addMonth();
+                <!-- Pilih Kamar -->
+                <div>
+                    <label for="room_id" class="block text-xs font-black uppercase tracking-wider mb-2" style="color: #581c87;">Pilih Kamar (Yang Kosong)</label>
+                    <select name="room_id" id="room_id" required style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-sm border-gray-300 rounded-xl p-3 focus:ring-purple-500 focus:border-purple-500">
+                        <option value="">-- Pilih Kamar --</option>
+                        @foreach($availableRooms as $room)
+                            <option value="{{ $room->id }}" {{ old('room_id') == $room->id ? 'selected' : '' }}>
+                                Kamar {{ $room->room_number }} (Rp {{ number_format($room->price, 0, ',', '.') }} / bulan)
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('room_id')
+                        <p class="text-xs text-red-600 mt-1 font-bold">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        $tenant = Tenant::create([
-            'user_id' => $user->id,
-            'room_id' => $request->room_id,
-            'phone' => $request->phone,
-            'start_date' => $startDate,
-            'due_date' => $dueDate,
-        ]);
+                <!-- Catatan Password bawaan -->
+                <div class="p-4 rounded-2xl border" style="background-color: #faf5ff; border-color: #e9d5ff;">
+                    <p class="text-xs font-bold text-purple-900">🔑 Catatan Akses Login:</p>
+                    <p class="text-xs text-gray-600 mt-0.5">Password bawaan akun untuk penghuni baru adalah <span class="font-black text-purple-700 bg-purple-100 px-2 py-0.5 rounded">password</span>. Penghuni dapat mengubah password setelah login melalui menu Pengaturan Profil.</p>
+                </div>
 
-        // 3. Ubah Status Kamar Menjadi Terisi
-        $room = Room::findOrFail($request->room_id);
-        $room->update(['is_occupied' => true]);
-
-        // 4. Buat Tagihan Pertama (Invoice)
-        Invoice::create([
-            'tenant_id' => $tenant->id,
-            'room_id' => $room->id,
-            'amount' => $room->price,
-            'due_date' => $dueDate,
-            'status' => 'unpaid',
-        ]);
-
-        return redirect()->route('owner.tenants.index')->with('success', 'Penghuni baru berhasil didaftarkan!');
-    }
-}
+                <div class="pt-4 flex justify-end gap-3">
+                    <a href="{{ route('owner.tenants.index') }}" class="px-5 py-3 rounded-xl text-xs font-bold transition" style="background-color: #f3e8ff; color: #581c87;">
+                        Batal
+                    </a>
+                    <button type="submit" class="px-6 py-3 rounded-xl text-xs font-black transition shadow-md" style="background-color: #7e22ce; color: #ffffff;">
+                        Simpan & Daftarkan Penghuni
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</x-app-layout>

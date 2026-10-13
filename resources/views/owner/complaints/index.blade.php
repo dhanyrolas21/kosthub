@@ -46,16 +46,16 @@
                                     @csrf
                                     @method('PATCH')
                                     <div class="flex items-center space-x-2">
-                                        <select name="status" class="text-xs border-gray-300 rounded p-1.5 focus:ring-blue-500">
-                                            <option value="pending" {{ $complaint->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="in_progress" {{ $complaint->status === 'in_progress' ? 'selected' : '' }}>Sedang Diproses</option>
-                                            <option value="resolved" {{ $complaint->status === 'resolved' ? 'selected' : '' }}>Selesai</option>
+                                        <select name="status" style="color: #111827 !important; background-color: #ffffff !important;" class="text-xs border-gray-300 rounded p-1.5 focus:ring-blue-500">
+                                            <option value="pending" {{ $complaint->status === 'pending' ? 'selected' : '' }} style="color: #111827 !important; background-color: #ffffff !important;">Pending</option>
+                                            <option value="in_progress" {{ $complaint->status === 'in_progress' ? 'selected' : '' }} style="color: #111827 !important; background-color: #ffffff !important;">Sedang Diproses</option>
+                                            <option value="resolved" {{ $complaint->status === 'resolved' ? 'selected' : '' }} style="color: #111827 !important; background-color: #ffffff !important;">Selesai</option>
                                         </select>
                                         <button type="submit" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-blue-700 transition">
                                             Simpan
                                         </button>
                                     </div>
-                                    <input type="text" name="owner_notes" value="{{ $complaint->owner_notes }}" placeholder="Tanggapan / Catatan Pemilik" class="w-full text-xs border border-gray-300 rounded p-1.5">
+                                    <input type="text" name="owner_notes" value="{{ $complaint->owner_notes }}" placeholder="Tanggapan / Catatan Pemilik" style="color: #111827 !important; background-color: #ffffff !important;" class="w-full text-xs border border-gray-300 rounded p-1.5">
                                 </form>
                             </td>
                         </tr>
@@ -70,4 +70,4 @@
             </table>
         </div>
     </div>
-</x-app-layout>
+</x-app-layout> 

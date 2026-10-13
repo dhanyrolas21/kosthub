@@ -1,123 +1,142 @@
 <x-app-layout>
-    <!-- Header Page Banner -->
-    <div class="relative overflow-hidden rounded-2xl glass-panel p-6 sm:p-8 border border-slate-800/80 bg-gradient-to-r from-slate-900 via-brand-900/40 to-slate-900 mb-6">
-        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-3">
-                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                    <span>Verifikasi Keuangan</span>
+    <div class="space-y-6">
+        <!-- Header Page Banner (Ungu Pekat Gradient - Soft Light Style) -->
+        <div class="relative overflow-hidden rounded-3xl p-6 sm:p-8 shadow-xl" style="background: linear-gradient(135deg, #4c1d95 0%, #312e81 50%, #581c87 100%); color: #ffffff !important;">
+            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full mb-3" style="background-color: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff;">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span class="text-xs font-bold">Verifikasi Keuangan</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-black tracking-tight" style="color: #ffffff !important;">Verifikasi Pembayaran</h2>
+                    <p class="text-sm mt-1 max-w-xl font-medium" style="color: #e9d5ff !important;">Periksa bukti transfer dan konfirmasi pembayaran dari penghuni kost.</p>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Verifikasi Pembayaran</h2>
-                <p class="text-slate-400 text-sm mt-1">Periksa bukti transfer dan konfirmasi pembayaran dari penghuni kost.</p>
             </div>
         </div>
-    </div>
 
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-lg">
-            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-            {{ session('success') }}
-        </div>
-    @endif
+        @if(session('success'))
+            <div class="p-4 rounded-2xl font-bold text-xs flex items-center gap-2 shadow-sm" style="background-color: #d1fae5; border: 1px solid #a7f3d0; color: #047857;">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                {{ session('success') }}
+            </div>
+        @endif
 
-    <!-- Main Table Glassmorphism Container -->
-    <div class="glass-panel rounded-2xl overflow-hidden shadow-xl border border-slate-800">
-        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
-            <h3 class="text-xs font-extrabold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
-                Daftar Pembayaran Menunggu Konfirmasi
-            </h3>
-        </div>
+        <!-- Main Table Container -->
+        <div class="p-6 sm:p-8 rounded-3xl shadow-sm space-y-5" style="background-color: #ffffff; border: 1px solid #e9d5ff;">
+            <div class="flex items-center justify-between pb-4" style="border-bottom: 2px solid #f3e8ff;">
+                <h3 class="text-base font-black flex items-center gap-2" style="color: #111827;">
+                    <i data-lucide="clock" class="w-5 h-5" style="color: #d97706;"></i>
+                    DAFTAR PEMBAYARAN MENUNGGU KONFIRMASI
+                </h3>
+            </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead class="text-slate-400 uppercase bg-slate-900/80 rounded-lg text-[10px] tracking-wider border-b border-slate-800">
-                    <tr>
-                        <th class="p-4">Penghuni</th>
-                        <th class="p-4">Kamar</th>
-                        <th class="p-4">Nominal</th>
-                        <th class="p-4">Bukti Transfer</th>
-                        <th class="p-4">Catatan & Aksi Verifikasi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-800/60 font-medium">
-                    @forelse($pendingPayments as $payment)
-                        <tr class="hover:bg-slate-900/40 transition">
-                            <td class="p-4 font-bold text-white flex items-center gap-2">
-                                <div class="w-7 h-7 rounded-full bg-brand-500/20 text-brand-300 flex items-center justify-center text-xs font-black">
-                                    {{ strtoupper(substr(optional(optional(optional($payment->invoice)->tenant)->user)->name ?? 'B', 0, 2)) }}
-                                </div>
-                                {{ optional(optional(optional($payment->invoice)->tenant)->user)->name ?? 'Budi' }}
-                            </td>
-                            <td class="p-4 text-indigo-400 font-bold">
-                                Kamar {{ optional(optional($payment->invoice)->room)->room_number ?? '6' }}
-                            </td>
-                            <td class="p-4 font-black text-emerald-400 text-sm">
-                                Rp {{ number_format(optional($payment->invoice)->amount ?? 1500000, 0, ',', '.') }}
-                            </td>
-                            <td class="p-4">
-                                @if(isset($payment->proof_image) && $payment->proof_image)
-                                    <a href="{{ asset('storage/' . $payment->proof_image) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30 transition">
-                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                                        <span>Lihat Bukti Foto</span>
-                                    </a>
-                                @else
-                                    <span class="text-xs text-slate-500">Tidak Ada Berkas</span>
-                                @endif
-                            </td>
-                            <td class="p-4 min-w-[280px]">
-                                <!-- Form Proteksi Double Click dengan Alpine.js -->
-                                <form 
-                                    action="{{ route('owner.payments.verify', $payment->id) }}" 
-                                    method="POST" 
-                                    class="space-y-2.5" 
-                                    x-data="{ submitted: false, actionVal: '' }" 
-                                    @submit="submitted = true"
-                                >
-                                    @csrf
-                                    <input type="hidden" name="action" :value="actionVal">
-
-                                    <input 
-                                        type="text" 
-                                        name="notes" 
-                                        placeholder="Catatan/Alasan (Opsional)" 
-                                        :disabled="submitted"
-                                        class="w-full px-3 py-2 bg-slate-900/90 text-white placeholder-slate-500 border border-slate-700/80 rounded-xl text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-medium transition"
-                                    >
-                                    
-                                    <div class="flex items-center gap-2" :class="{ 'pointer-events-none opacity-50': submitted }">
-                                        <button 
-                                            type="submit" 
-                                            @click="actionVal = 'approve'"
-                                            :disabled="submitted"
-                                            class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-lg shadow-emerald-600/20 transition active:scale-95 flex items-center justify-center gap-1"
-                                        >
-                                            <i data-lucide="check" class="w-3.5 h-3.5" x-show="!submitted"></i>
-                                            <span x-text="submitted && actionVal === 'approve' ? 'Memproses...' : 'SETUJUI'"></span>
-                                        </button>
-                                        <button 
-                                            type="submit" 
-                                            @click="actionVal = 'reject'"
-                                            :disabled="submitted"
-                                            class="flex-1 py-2 px-3 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-lg shadow-rose-600/20 transition active:scale-95 flex items-center justify-center gap-1"
-                                        >
-                                            <i data-lucide="x" class="w-3.5 h-3.5" x-show="!submitted"></i>
-                                            <span x-text="submitted && actionVal === 'reject' ? 'Memproses...' : 'TOLAK'"></span>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="uppercase rounded-xl text-[10px] tracking-wider" style="background-color: #f3e8ff; color: #581c87;">
                         <tr>
-                            <td colspan="5" class="p-8 text-center text-slate-500">
-                                Tidak ada pembayaran yang menunggu verifikasi saat ini.
-                            </td>
+                            <th class="p-4 rounded-l-xl font-black">Penghuni</th>
+                            <th class="p-4 font-black">Kamar</th>
+                            <th class="p-4 font-black">Nominal</th>
+                            <th class="p-4 font-black">Bukti Transfer</th>
+                            <th class="p-4 text-right rounded-r-xl font-black">Catatan & Aksi Verifikasi</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y font-bold" style="border-color: #f3e8ff;">
+                        @forelse($pendingPayments as $payment)
+                            <tr class="transition" style="border-bottom: 1px solid #f3e8ff;">
+                                <!-- Nama Penghuni -->
+                                <td class="p-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black shrink-0" style="background-color: #7e22ce; color: #ffffff;">
+                                            {{ strtoupper(substr(optional(optional(optional($payment->invoice)->tenant)->user)->name ?? 'B', 0, 2)) }}
+                                        </div>
+                                        <span class="text-sm font-black" style="color: #111827 !important;">
+                                            {{ optional(optional(optional($payment->invoice)->tenant)->user)->name ?? 'Budi' }}
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <!-- Nomor Kamar -->
+                                <td class="p-4 text-sm font-black" style="color: #581c87;">
+                                    Kamar {{ optional(optional($payment->invoice)->room)->room_number ?? '6' }}
+                                </td>
+
+                                <!-- Nominal Tagihan -->
+                                <td class="p-4 text-base font-black" style="color: #059669;">
+                                    Rp {{ number_format(optional($payment->invoice)->amount ?? 1500000, 0, ',', '.') }}
+                                </td>
+
+                                <!-- Foto Bukti Transfer -->
+                                <td class="p-4">
+                                    @if(isset($payment->proof_image) && $payment->proof_image)
+                                        <a href="{{ asset('storage/' . $payment->proof_image) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-extrabold transition shadow-sm" style="background-color: #f3e8ff; color: #581c87; border: 1px solid #c084fc;">
+                                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                                            <span>Lihat Bukti Foto</span>
+                                        </a>
+                                    @else
+                                        <span class="text-xs font-medium" style="color: #9ca3af;">Tidak Ada Berkas</span>
+                                    @endif
+                                </td>
+
+                                <!-- Form Aksi dengan Alpine.js (Proteksi Double Click & Tombol Kontras Pekat) -->
+                                <td class="p-4 min-w-[300px] text-right">
+                                    <form 
+                                        action="{{ route('owner.payments.verify', $payment->id) }}" 
+                                        method="POST" 
+                                        class="space-y-2.5 inline-block text-left w-full sm:w-auto" 
+                                        x-data="{ submitted: false, actionVal: '' }" 
+                                        @submit="submitted = true"
+                                    >
+                                        @csrf
+                                        <input type="hidden" name="action" :value="actionVal">
+
+                                        <input 
+                                            type="text" 
+                                            name="notes" 
+                                            placeholder="Catatan/Alasan (Opsional)" 
+                                            :disabled="submitted"
+                                            style="color: #111827 !important; background-color: #ffffff !important; border: 1px solid #d1d5db;"
+                                            class="w-full px-3 py-2 rounded-xl text-xs font-medium focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition"
+                                        >
+                                        
+                                        <div class="flex items-center justify-end gap-2" :class="{ 'pointer-events-none opacity-50': submitted }">
+                                            <!-- Tombol SETUJUI (Hijau Pekat Menyala) -->
+                                            <button 
+                                                type="submit" 
+                                                @click="actionVal = 'approve'"
+                                                :disabled="submitted"
+                                                class="py-2.5 px-4 text-xs font-black rounded-xl shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                                style="background-color: #047857 !important; color: #ffffff !important; border: 1px solid #065f46;"
+                                            >
+                                                <i data-lucide="check" class="w-4 h-4 text-white" x-show="!submitted"></i>
+                                                <span x-text="submitted && actionVal === 'approve' ? 'Memproses...' : 'SETUJUI'" style="color: #ffffff !important;"></span>
+                                            </button>
+
+                                            <!-- Tombol TOLAK (Merah Pekat) -->
+                                            <button 
+                                                type="submit" 
+                                                @click="actionVal = 'reject'"
+                                                :disabled="submitted"
+                                                class="py-2.5 px-4 text-xs font-black rounded-xl shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
+                                                style="background-color: #be123c !important; color: #ffffff !important; border: 1px solid #9f1239;"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4 text-white" x-show="!submitted"></i>
+                                                <span x-text="submitted && actionVal === 'reject' ? 'Memproses...' : 'TOLAK'" style="color: #ffffff !important;"></span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="p-8 text-center font-medium text-sm" style="color: #9ca3af;">
+                                    Tidak ada pembayaran yang menunggu verifikasi saat ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </x-app-layout>
